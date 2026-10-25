@@ -36,7 +36,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+  
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -56,7 +56,22 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+  float getPowerVoltage(void) {
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 10);
+    uint16_t adc_val = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+    
+    // تناسب ریاضی: تبدیل عدد 0 تا 4095 به ولتاژ واقعی (0 تا 3.3 ولت)
+    // حتما از f در کنار اعداد اعشاری استفاده کنید
+    float pin_voltage = (adc_val * 3.3f) / 4095.0f;
+    
+    // اگر مدار شما مقاومت تقسیم ولتاژ دارد (مثلا ولتاژ 12 ولت را کم کرده اید)
+    // باید ولتاژ را در ضریب مقاومت ها ضرب کنید. فرض کنیم ضریب 2 است:
+    float real_voltage = pin_voltage * 10.0f;
+    
+    return real_voltage;
+}
 /* USER CODE END 0 */
 
 /**
@@ -97,8 +112,33 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+   float powerVoltage = getPowerVoltage();
+   if (powerVoltage >= 20.0f){
+    HAL_GPIO_WritePin(System_LED_GPIO_Port,System_LED_Pin,SET);
+     HAL_GPIO_WritePin(GPS_LED_GPIO_Port,GPS_LED_Pin,SET);
+      HAL_GPIO_WritePin(GSM_LED_GPIO_Port,GSM_LED_Pin,SET);
+   }
+   else if (powerVoltage <= 20.0f && powerVoltage >15.0f){
+    HAL_GPIO_WritePin(System_LED_GPIO_Port,System_LED_Pin,SET);
+     HAL_GPIO_WritePin(GPS_LED_GPIO_Port,GPS_LED_Pin,SET);
+      HAL_GPIO_WritePin(GSM_LED_GPIO_Port,GSM_LED_Pin,RESET);
 
+   }
+   else if (powerVoltage <= 15.0f && powerVoltage >10.0f){
+   HAL_GPIO_WritePin(System_LED_GPIO_Port,System_LED_Pin,SET);
+     HAL_GPIO_WritePin(GPS_LED_GPIO_Port,GPS_LED_Pin,RESET);
+      HAL_GPIO_WritePin(GSM_LED_GPIO_Port,GSM_LED_Pin,RESET);
+   }
+   else if (powerVoltage <= 10.0f){
+     HAL_GPIO_WritePin(GPS_LED_GPIO_Port,GPS_LED_Pin,RESET);
+      HAL_GPIO_WritePin(GSM_LED_GPIO_Port,GSM_LED_Pin,RESET);
+    HAL_Delay(500);
+    HAL_GPIO_TogglePin(System_LED_GPIO_Port,System_LED_Pin);
+   }
+
+   
+    /* USER CODE END WHILE */
+    
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
