@@ -101,29 +101,44 @@ int main(void)
     /* USER CODE END WHILE */
     
     /* USER CODE BEGIN 3 */
-      float powerVoltage = getPowerVoltage();
-   if (powerVoltage >= 20.0f){
-    HAL_GPIO_WritePin(System_LED_GPIO_Port,System_LED_Pin,GPIO_PIN_SET);
-     HAL_GPIO_WritePin(GPS_LED_GPIO_Port,GPS_LED_Pin,GPIO_PIN_SET);
-      HAL_GPIO_WritePin(GSM_LED_GPIO_Port,GSM_LED_Pin,GPIO_PIN_SET);
-   }
-   else if (powerVoltage <= 20.0f && powerVoltage >15.0f){
-    HAL_GPIO_WritePin(System_LED_GPIO_Port,System_LED_Pin,GPIO_PIN_SET);
-     HAL_GPIO_WritePin(GPS_LED_GPIO_Port,GPS_LED_Pin,GPIO_PIN_SET);
-      HAL_GPIO_WritePin(GSM_LED_GPIO_Port,GSM_LED_Pin,GPIO_PIN_RESET);
+    float powerVoltage = getPowerVoltage();
+      //--Start of PowerFull State---
+    if (powerVoltage >= 20.0f)
 
-   }
-   else if (powerVoltage <= 15.0f && powerVoltage >10.0f){
-   HAL_GPIO_WritePin(System_LED_GPIO_Port,System_LED_Pin,GPIO_PIN_SET);
-     HAL_GPIO_WritePin(GPS_LED_GPIO_Port,GPS_LED_Pin,GPIO_PIN_RESET);
-      HAL_GPIO_WritePin(GSM_LED_GPIO_Port,GSM_LED_Pin,GPIO_PIN_RESET);
-   }
-   else if (powerVoltage <= 10.0f){
-     HAL_GPIO_WritePin(GPS_LED_GPIO_Port,GPS_LED_Pin,GPIO_PIN_RESET);
-      HAL_GPIO_WritePin(GSM_LED_GPIO_Port,GSM_LED_Pin,GPIO_PIN_RESET);
-    HAL_Delay(500);
-    HAL_GPIO_TogglePin(System_LED_GPIO_Port,System_LED_Pin);
-   }
+    {
+      HAL_GPIO_WritePin(System_LED_GPIO_Port, System_LED_Pin, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(GPS_LED_GPIO_Port, GPS_LED_Pin, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(GSM_LED_GPIO_Port, GSM_LED_Pin, GPIO_PIN_SET);
+    }
+      //--End of PowerFull Start State---
+      //--Start of Medium Power State---
+    else if ((powerVoltage <= 20.0f) && (powerVoltage >15.0f))
+
+    {
+      HAL_GPIO_WritePin(System_LED_GPIO_Port, System_LED_Pin, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(GPS_LED_GPIO_Port, GPS_LED_Pin, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(GSM_LED_GPIO_Port, GSM_LED_Pin, GPIO_PIN_RESET);
+    }
+      //--End of Medium Power State---
+      //--Start of Low Power State---
+    else if ((powerVoltage <= 15.0f) && (powerVoltage >10.0f))
+
+    {  
+      HAL_GPIO_WritePin(System_LED_GPIO_Port, System_LED_Pin, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(GPS_LED_GPIO_Port, GPS_LED_Pin, GPIO_PIN_RESET);
+      HAL_GPIO_WritePin(GSM_LED_GPIO_Port, GSM_LED_Pin, GPIO_PIN_RESET);
+    }
+      //--End of Low Power State---
+      //--Start of Very Low Power State---
+    else if (powerVoltage <= 10.0f)
+
+    {
+      HAL_GPIO_WritePin(GPS_LED_GPIO_Port, GPS_LED_Pin, GPIO_PIN_RESET);
+      HAL_GPIO_WritePin(GSM_LED_GPIO_Port, GSM_LED_Pin, GPIO_PIN_RESET);
+      HAL_Delay(500);
+      HAL_GPIO_TogglePin(System_LED_GPIO_Port, System_LED_Pin);
+    }
+      //--Start of Very Low Power State---
   }
   /* USER CODE END 3 */
 }
@@ -273,18 +288,22 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-//Start Function Read Voltage ON PIN PA4
+  //Start Function Read Voltage ON PIN PA4 & Calculator Real Power Voltage
 float getPowerVoltage(void) 
-  {
+
+  { 
+
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, 10);
     uint16_t adc_val = HAL_ADC_GetValue(&hadc1);
     HAL_ADC_Stop(&hadc1);  
     float pin_voltage = (adc_val * 3.3f) / 4095.0f;
     float real_voltage = pin_voltage * 10.0f;
+
     return real_voltage;
+
   }
-//End Function Read Voltage ON PIN PA4
+  //End of getPowerVoltage Function
 /* USER CODE END 4 */
 
 /**
